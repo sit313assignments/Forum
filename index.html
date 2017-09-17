@@ -1,0 +1,1049 @@
+<html >
+<head>
+	<!--including css files and javascript files  -->
+	<link rel="stylesheet" href="css/onsenui.css">
+	<link rel="stylesheet" href="css/onsen-css-components.min.css">
+	<link rel="stylesheet" href="css/ionic.css">
+	<link rel="stylesheet" href="css/ionic.min.css">
+
+	<script src="js/onsenui.min.js"></script>
+	<script src="js/ionic.js"></script>
+
+
+</head>
+
+<body>
+	<script type="text/javascript">
+
+	// ---------------------------------right splitter function---------------------------------
+	window.fn={};
+
+	window.fn.toggleMenu=function () {
+	  document.getElementById('appSplitter').right.toggle();
+	};
+
+
+	window.fn.loadView = function (index) {
+	  document.getElementById('appTabs').setActiveTab(index);
+	  document.getElementById('menu').close();
+	};
+
+	// ---------------------------------click then pushing pages---------------------------------
+	window.fn.pushPage = function (page, anim) {
+	  if (anim) {
+	    document.getElementById('appNavigator').pushPage(page.id, { data: { title: page.title }, animation: anim });
+	  } else {
+	    document.getElementById('appNavigator').pushPage(page.id, { data: { title: page.title } });
+	  }
+	};
+
+	// ---------------------------------click then pushing pages---------------------------------
+	ons.ready(function () {
+	  const sidemenu = document.getElementById('appSplitter');
+	  ons.platform.isAndroid() ? sidemenu.right.setAttribute('animation', 'overlay') : sidemenu.right.setAttribute('animation', 'reveal');
+
+	  document.querySelector('#tabbar-page').addEventListener('postchange', function(event) {
+	    if (event.target.matches('#appTabs')) {
+	      event.currentTarget.querySelector('ons-toolbar .center').innerHTML = event.tabItem.getAttribute('label');
+	    }
+	  });
+
+		showHome();
+		//showComment();
+		//showManage();
+	});
+
+//-----------------------------------------------------------------------------------------
+
+// function show(){
+// 	var myObj, myJSON, text, obj;
+//
+// 	myObj = { "name":"John", "age":31, "city":"New York" };
+// 	alert(myObj);
+// 	myJSON = JSON.stringify(myObj);
+// 	window.localStorage.setItem("testJSON", myJSON);
+//
+// 	text = window.localStorage.getItem("testJSON");
+// 	obj = JSON.parse(text);
+// 	alert(obj.name);
+// 	return obj.name;
+// }
+
+var poster;
+var now_article;
+var txtComment = new Array();//= document.getElementById('txtComments').value;
+
+function onRegisterPressed(){
+
+	var username = document.getElementById("username").value;
+	var email = document.getElementById("email").value;
+	var password = document.getElementById("password").value;
+
+	if(username==''||email==''||password==''){
+		alert("Your username ,password or password is null!");
+	}else{
+
+	var load_user_datar = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid="+username;
+	var new_user_data = "http://introtoapps.com/datastore.php?action=save&appid=216328815&objectid="+username+"&data={\"username\":\""+username+"\",\"password\":\""+password+"\",\"email\":\""+email+"\",\"signiture\":\""+username+"\"}";
+
+	var load_user_infor = new XMLHttpRequest();
+	load_user_infor.open("get",load_user_datar,false);
+	load_user_infor.send(null);
+
+	if(load_user_infor.responseText == "Bad Request: objectid doesn't exist."){
+		var save_user_info = new XMLHttpRequest();
+		save_user_info.open("get",new_user_data,false);
+		save_user_info.send(null);
+
+		//window.history.back(-1);
+	appNavigator.popPage();
+	}else{
+		alert("You have registered!");
+	}
+ }
+}
+
+function logOut(){
+	document.getElementById('show').style.display = document.getElementById('show').style.display=="none"?"block":"none";
+	poster='';
+	appNavigator.popPage();
+	ons.notification.alert('Log off successfully!');
+}
+
+function checkUsername_R(){
+	var username = document.getElementById("username").value;
+
+	var usernameError = document.getElementById("usernameE");
+
+	var isUsername =/^([A-Za-z]{0,10})$/;
+	if(username ==""){
+		usernameError.innerHTML = "Please input your username!";
+	}else if(!isUsername.test(username)){
+		usernameError.innerHTML = "Please input your right username!";
+	}else{
+		usernameError.innerHTML = "";
+	}
+}
+
+function checkEmail_R(){
+	var email = document.getElementById("email").value;
+	var emailError = document.getElementById("emailE");
+	var isEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+
+	if(email ==""){
+		emailError.innerHTML = "Please input your email!";
+	}else if(!isEmail.test(email)){
+		emailError.innerHTML = "Please input your right email!";
+	}else{
+		emailError.innerHTML = "";
+	}
+
+}
+
+function checkPassword_R(){
+
+	var password = document.getElementById("password").value;
+	var passwordError = document.getElementById("passwordE");
+	var isPassword = /^([A-Za-z0-9]{0,10})$/;
+
+	if(password ==""){
+		passwordError.innerHTML = "Please input your password!";
+	}else if(!isPassword.test(password)){
+		passwordError.innerHTML = "Please input your right password!";
+	}else{
+		passwordError.innerHTML = "";
+	}
+
+}
+
+function checkUsername_L(){
+	var usernameL = document.getElementById("usernameL").value;
+
+	var usernameLError = document.getElementById("usernameLE");
+
+	var isUsername =/^([A-Za-z]{0,10})$/;
+	if(usernameL ==""){
+		usernameLError.innerHTML = "!";
+	}else if(!isUsername.test(usernameL)){
+		usernameLError.innerHTML = "!";
+	}else{
+		usernameLError.innerHTML = "";
+	}
+}
+
+function transferManage(){
+	if(document.getElementById('show').style.display == "none"){
+		fn.pushPage({'id': 'MangeA.html', 'title': 'Mange Accouts'});
+
+		showManage();
+	}
+}
+
+function saveSign(){
+	signiture = document.getElementById('userSigniture').value;
+	//alert(signiture);
+	var new_user_data = "http://introtoapps.com/datastore.php?action=save&appid=216328815&objectid="+poster.username+"&data={\"username\":\""+poster.username+"\",\"password\":\""+poster.password+"\",\"email\":\""+poster.email+"\",\"signiture\":\""+signiture+"\"}";
+	var save_user_info = new XMLHttpRequest();
+	save_user_info.open("get",new_user_data,false);
+	save_user_info.send(null);
+
+
+}
+
+function transferNotification(){
+	if(document.getElementById('show').style.display == "none"){
+		fn.pushPage({'id': 'Notification.html', 'title': 'Notification'});
+	}
+}
+
+function transferHelp(){
+	if(document.getElementById('show').style.display == "none"){
+		fn.pushPage({'id': 'Help.html', 'title': 'Help&Feedback'});
+	}
+
+}
+
+function reply(){
+	if(	document.getElementById('replybar').style.display == "none"){
+		document.getElementById('replybar').style.display="block";
+	}else{
+		document.getElementById('replybar').style.display="none";
+	}
+}
+
+function recordComments(){
+
+	comment = document.getElementById('txtComments').value;
+
+	var comArea = document.getElementById('commentsArea');
+
+	txtComment.push(comment);
+	if(poster!=undefined){
+		comArea.innerHTML += "<p><a>"+poster.username+"</a>:"+comment+"</p>";
+
+		var load_article_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid=articleJson";
+
+		var load_article_info = new XMLHttpRequest();
+		load_article_info.open("get",load_article_data,false);
+		load_article_info.send(null);
+
+		if(load_article_info.responseText == "Bad Request: objectid doesn't exist."){
+			ons.notification.alert("No article in the Forum");
+		}else{
+			var ctxt = eval('('+load_article_info.responseText+')');
+		}
+		//alert(ctxt);
+		//var ctxt = load_article();
+		var delete_article_data = "http://introtoapps.com/datastore.php?action=save&appid=216328815&objectid=articleJson&data=[]";
+		var delete_article_info = new XMLHttpRequest();
+
+		delete_article_info.open("get",delete_article_data,false);
+		delete_article_info.send(null);
+
+
+		// alert(now_article);
+
+		//ons.notification.alert(ctxt.length);
+		for (var k = 0; k< ctxt.length; k++){
+			//append
+			var addReply='';
+			for(var r=0; r<ctxt[k].reply.length;r++){
+
+				if(r==0){
+					addReply = '{"username":"'+ctxt[k].reply[r].username+'","comment":"'+ctxt[k].reply[r].comment+'"}';
+				}else{
+					addReply += ',{"username":"'+ctxt[k].reply[r].username+'","comment":"'+ctxt[k].reply[r].comment+'"}';
+				}
+			}
+
+			if(ctxt[k].text == now_article){
+				// old comments
+				//alert(ctxt[k].reply.length);
+				//alert(addReply);
+					addReply += ',{"username":"'+poster.username+'","comment":"'+comment+'"}';
+				//alert(addReply);
+			}
+
+			var postNewTable ='{"title":"'+ctxt[k].title+'","author":"'+ctxt[k].author+'","category":"'+ctxt[k].category+'","text":"'+ctxt[k].text+'","signiture":"'+ctxt[k].signiture+'","reply":['+addReply+']}';
+			//alert(postNewTable);
+			var append_comments_data = "http://introtoapps.com/datastore.php?action=append&appid=216328815&objectid=articleJson&data="+postNewTable;
+			var append_comments_info = new XMLHttpRequest();
+
+			append_comments_info.open("get",append_comments_data,false);
+			append_comments_info.send(null);
+
+			// else{
+			// 	//oragional data
+			// 	// for(var p=0; p<ctxt[k].reply.length;p++){
+			// 	// 	if(ctxt[k].reply.length==1){
+			// 	// 		addReply = '{"username":"'+ctxt[k].reply[p].username+'","comment":"'+ctxt[k].reply[p].comment+'"}';
+			// 	// 	}else if(r == ctxt[k].reply.length-1){
+			// 	// 		addReply += '{"username":"'+ctxt[k].reply[p].username+'","comment":"'+ctxt[k].reply[p].comment+'"}';
+			// 	// 	}else{
+			// 	// 		addReply += '{"username":"'+ctxt[k].reply[p].username+'","comment":"'+ctxt[k].reply[p].comment+'"},';
+			// 	// 	}
+			// 	// }
+			//
+			// 	var postNewTable ='{"title":"'+ctxt[k].title+'","author":"'+ctxt[k].author+'","category":"'+ctxt[k].category+'","text":"'+ctxt[k].text+'","reply":['+addReply+']}';
+			//
+			// 	var append_comments_data = "http://introtoapps.com/datastore.php?action=append&appid=216328815&objectid=articleJson&data="+postNewTable;
+			// 	var append_comments_info = new XMLHttpRequest();
+			//
+			// 	append_comments_info.open("get",append_comments_data,false);
+			// 	append_comments_info.send(null);
+			//
+			// }
+
+		}
+		//var append_comments_data = "http://introtoapps.com/datastore.php?action=append&appid=216328815&objectid=articleJson&data=";
+	}else{
+		ons.notification.alert("Please Login!");
+	}
+}
+
+function recordPost(){
+	// var delete_article_data = "http://introtoapps.com/datastore.php?action=save&appid=216328815&objectid=articleJson&data=[]";
+	// var delete_article_info = new XMLHttpRequest();
+	//
+	// delete_article_info.open("get",delete_article_data,false);
+	// delete_article_info.send(null);
+
+
+	//alert('click');
+	var titleN = escape(document.getElementById('title').value);
+	var categoryN = escape(document.getElementById('category').value);
+	var textN = escape(document.getElementById('txtPost').value);
+
+	var title =unescape(titleN);
+	var category =unescape(categoryN);
+	var text =unescape(textN);
+
+
+	if(poster == undefined){
+		ons.notification.alert("Please Login!");
+	}
+	var user = poster.username;
+	var sign = poster.signiture;
+	//alert(sign);
+	//var txtComment = document.getElementById('txtComments').value;
+
+	if(title==""||category==""||text==""){
+		ons.notification.alert("Please finish the Form!");
+	}else{
+		var reply = '{"username":"0","comment":"0"}';
+
+		//alert(reply);
+		var postTable ='{"title":"'+title+'","author":"'+user+'","category":"'+category+'","text":"'+text+'","signiture":"'+sign+'","reply":['+reply+']}';
+
+		var append_post_data = "http://introtoapps.com/datastore.php?action=append&appid=216328815&objectid=articleJson&data="+postTable;
+
+		var load_post_info = new XMLHttpRequest();
+
+		load_post_info.open("get",append_post_data,false);
+		load_post_info.send(null);
+
+		//window.location.reload();
+		//alert(append_post_data);
+
+		var load_article_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid=articleJson";
+
+		var load_article_info = new XMLHttpRequest();
+		load_article_info.open("get",load_article_data,false);
+		load_article_info.send(null);
+
+		if(load_article_info.responseText == "Bad Request: objectid doesn't exist."){
+			ons.notification.alert("No article in the Forum");
+		}else{
+			var atxt = eval('('+load_article_info.responseText+')');
+		}
+		//alert(atxt);
+		var whileStr='';
+		document.getElementById('Home.html').innerHTML ='';
+		for(var j=0;j<atxt.length;j++){
+
+			var aut = atxt[j].author;
+			var art = escape(atxt[j].text);
+
+			whileStr +=	'<div id="'+article_id[j]+'" class="list card" onclick="showView(\''+aut+'\',\''+art+'\')">'+
+			'<div class="item item-avatar">'+
+			'<img src="">'+
+			'<h2 id="author'+j+'">'+atxt[j].author+'</h2>'+
+			'<p>June 15, 2017</p>'+
+			'</div>'+
+			'<div class="item item-body">'+
+			'<img src="">'+
+			'<p id="article'+j+'">'+atxt[j].text+
+			'</p>'+
+			'<p>'+
+			'<a href="#" class="subdued">32 like</a>'+
+			'<a href="#" class="subdued">43 comments</a>'+
+			'</p>'+
+			'</div>'+
+			'</div>';
+		}
+			document.getElementById('Home.html').innerHTML ='<ons-page>'+whileStr+'</ons-page>';
+			//alert(document.getElementById('Home.html').innerHTML);
+	}
+	document.getElementById('title').value='';
+	document.getElementById('category').value='';
+	document.getElementById('txtPost').value='';
+
+
+
+}
+
+var article_id = new Array();
+
+function showHome(){
+
+	var load_article_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid=articleJson";
+
+	var load_article_info = new XMLHttpRequest();
+	load_article_info.open("get",load_article_data,false);
+	load_article_info.send(null);
+
+
+	if(load_article_info.responseText == "Bad Request: objectid doesn't exist."){
+		ons.notification.alert("No article in the Forum");
+	}else{
+		var atxt = eval('('+load_article_info.responseText+')');
+	}
+
+	//var atxt = load_article();
+	//alert(atxt[0]);
+
+	var whileStr='';
+	for(var j=0;j<atxt.length;j++){
+		article_id[j]="article"+j;
+
+		var aut = atxt[j].author;
+		var art = escape(atxt[j].text);
+
+		var load_user_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid="+aut;
+
+		var load_user_info = new XMLHttpRequest();
+		load_user_info.open("get",load_user_data,false);
+		load_user_info.send(null);
+
+		//alert(load_user_info.responseText);
+	 if(load_user_info.responseText=="Bad Request: objectid contains invalid characters."){
+		ons.notification.alert("Your username is not existed!");
+	 }else{
+		var stxt = eval('('+load_user_info.responseText+')');
+	 }
+
+		whileStr +=	'<div id="'+article_id[j]+'" class="list card" onclick="showView(\''+aut+'\',\''+art+'\')">'+
+		'<div class="item item-avatar">'+
+		'<img src="">'+
+		'<h2 id="author'+j+'">'+atxt[j].author+'</h2>'+
+		'<p>June 15, 2017</p>'+
+		'</div>'+
+		'<div class="item item-body">'+
+		'<img src="">'+
+		'<p id="article'+j+'">'+atxt[j].text+
+		'</p>'+
+		'<p> ---------'+stxt.signiture+
+		'</p>'+
+		'<p>'+
+		'<a href="#" class="subdued">32 like</a>'+
+		'<a href="#" class="subdued">43 comments</a>'+
+		'</p>'+
+		'</div>'+
+		'</div>';
+	}
+
+		document.getElementById('Home.html').innerHTML ='<ons-page>'+whileStr+'</ons-page>';
+		//alert(document.getElementById('Home.html').innerHTML);
+}
+
+// function showComment(){
+//
+// 	//load_all_comments
+// 	var load_article_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid=articleJson";
+//
+// 	var load_article_info = new XMLHttpRequest();
+// 	load_article_info.open("get",load_article_data,false);
+// 	load_article_info.send(null);
+//
+// 	if(load_article_info.responseText == "Bad Request: objectid doesn't exist."){
+// 		alert("No article in the Forum");
+// 	}else{
+// 		var ctxt = eval('('+load_article_info.responseText+')');
+// 	}
+//
+// 	var showReply = '';
+// 	for (var d=0;d<ctxt.length;d++){
+//
+// 		if(ctxt[d].text == now_article){
+// 			for(var r=1; r<ctxt[d].reply.length;r++){
+// 				showReply += "<p><a>"+ctxt[d].reply[r].username+"</a>:"+ctxt[d].reply[r].comment+"</p>";
+// 			}
+// 			alert(showReply);
+// 		}
+// 	}
+// 	comArea.innerHTML=showReply;
+//
+// }
+
+function showView(auth,art){
+	arti = unescape(art);
+
+	fn.pushPage({'id': 'View.html', 'title': 'View'});
+	now_article = arti;
+
+	//load_all_comments
+	var load_article_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid=articleJson";
+
+	var load_article_info = new XMLHttpRequest();
+	load_article_info.open("get",load_article_data,false);
+	load_article_info.send(null);
+
+	if(load_article_info.responseText == "Bad Request: objectid doesn't exist."){
+		ons.notification.alert("No article in the Forum");
+	}else{
+		var ctxt = eval('('+load_article_info.responseText+')');
+	}
+
+	var load_user_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid="+auth;
+
+	var load_user_info = new XMLHttpRequest();
+	load_user_info.open("get",load_user_data,false);
+	load_user_info.send(null);
+
+	//alert(load_user_info.responseText);
+ if(load_user_info.responseText=="Bad Request: objectid contains invalid characters."){
+	ons.notification.alert("Your username is not existed!");
+ }else{
+	var stxt = eval('('+load_user_info.responseText+')');
+ }
+
+
+	var showReply = '';
+	var showSign = stxt.signiture;
+	for (var d=0;d<ctxt.length;d++){
+
+		if(ctxt[d].text == now_article){
+			for(var r=1; r<ctxt[d].reply.length;r++){
+				showReply += "<p><a>"+ctxt[d].reply[r].username+"</a>:"+ctxt[d].reply[r].comment+"</p>";
+			}
+			//alert(showReply);
+		}
+	}
+	//comArea.innerHTML=showReply;
+
+	document.getElementById('View.html').innerHTML = '<ons-page>'+
+	'	<ons-toolbar>'+
+	'		<div class="left"><ons-back-button>Home</ons-back-button></div>'+
+	'		<div class="center"></div>'+
+	'	</ons-toolbar>'+
+	'	<p id="card_content">'+
+	'		<div class="list card">'+
+	'		<div class="item item-avatar">'+
+	'			<img src="">'+
+	'			<h2 id="nameV">'+auth+'</h2>'+
+	'			<p id="timeV">May 21, 2017</p>'+
+	'</div>'+
+	'<div class="item item-body">'+
+	'<img src="">'+
+	'<p id="article">'+
+	arti+
+	'</p>'+
+	'<p>---------------'+showSign+
+	'</p>'+
+	'<p>'+
+	'<a href="#" class="subdued">11 like</a>'+
+	'<a href="#" onclick="reply()" class="subdued">reply</a>'+
+	'</p>'+
+	'</div>'+
+	'<div id="replybar" class="item item-body">'+
+	'<textarea id="txtComments" placeholder="Comments Please!" style="width:100%; height:10%;"></textarea>'+
+	'<button class="button button-block button-positive" onclick="recordComments()">submit</button>'+
+	'</div>'+
+	'<div id="commentsArea" class="item item-body">'+
+	showReply+
+	'</div></div></p></ons-page>';
+
+	//showComment();
+	//document.getElementById(id).
+
+}
+
+function showManage(){
+
+	document.getElementById('MangeA.html').innerHTML = '<ons-page id="MangeA">'+
+	'<ons-toolbar>'+
+	'<div class="left"><ons-back-button>Settings</ons-back-button></div>'+
+	'<div class="center"></div>'+
+	'</ons-toolbar>'+
+	'<ons-list>'+
+	'<ons-list-header>Personal Information</ons-list-header>'+
+	'<ons-list-item>Username:  <span id = "userName" class="subdued">'+poster.username+'</span></ons-list-item>'+
+	'<ons-list-item>Email:  <span id = "userEmail" class="subdued">'+poster.email+'</span></ons-list-item>'+
+	'</ons-list>'+
+	'<ons-list>'+
+	'<ons-list-item>Signiture:  <input id = "userSigniture" class="subdued"> <button onclick="saveSign()">save</button>(default:'+poster.username+')</ons-list-item>'+
+	'</ons-list>'+
+	'<button class="button button-block button-positive" onclick="logOut()">Log off</button>'+
+	'</ons-page>';
+
+}
+
+// function load_article(){
+// 	var load_article_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid=articleJson";
+//
+// 	var load_article_info = new XMLHttpRequest();
+// 	load_article_info.open("get",load_article_data,false);
+// 	load_article_info.send(null);
+//
+// 	if(load_article_info.responseText == "Bad Request: objectid doesn't exist."){
+// 		alert("No article in the Forum");
+// 	}else{
+// 		var txt = eval('('+load_article_info.responseText+')');
+// 	}
+//
+// 	return txt;
+// }
+//-----------------------------------using json storage to save data(Useless now!) ------------------------------------------------------
+
+
+ 	document.addEventListener('init', function(event) {
+	 	var page = event.target;
+		//var person = {"username":username,"email":email,"password":password};
+
+
+	// ---------------------------------Every funcions on their pages---------------------------------
+
+	switch (page.id) {
+		case 'Home':
+										  	break;
+
+		case 'Person': 		page.querySelector('#push-button-sign').onclick = function() {
+												document.querySelector('#appNavigator').pushPage('Register.html', {data: {title: 'Register'}});
+												};
+
+											page.querySelector('#login').onclick = function(){
+											 //	document.getElementById('show').style.display = document.getElementById('show').style.display=="none"?"block":"none";
+												var usernameL = document.getElementById("usernameL").value;
+												var passwordL = document.getElementById("passwordL").value;
+
+												if(usernameL==''||passwordL==''){
+													ons.notification.alert("Your username or password is null!");
+												}else{
+
+												var load_user_data = "http://introtoapps.com/datastore.php?action=load&appid=216328815&objectid="+usernameL;
+
+												var load_user_info = new XMLHttpRequest();
+												load_user_info.open("get",load_user_data,false);
+												load_user_info.send(null);
+
+												//alert(load_user_info.responseText);
+											 if(load_user_info.responseText=="Bad Request: objectid contains invalid characters."){
+												ons.notification.alert("Your username is not existed!");
+											 }else{
+												var txt = eval('('+load_user_info.responseText+')');
+												poster=txt;
+											 }
+
+												if(usernameL==txt.username && passwordL==txt.password){
+													//document.getElementById("show").style.display=none;
+													document.getElementById('show').style.display = document.getElementById('show').style.display=="none"?"block":"none";
+												}else{
+													ons.notification.alert("Your username or your password was invalid!");
+												}
+
+												};
+											}
+											break;
+
+		case 'Register': 	page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+											break;
+
+		case 'MangeA': 		//if(document.getElementById('show').style.display== none){
+												page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+											//}
+											break;
+
+		case 'Notification': 	page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+													break;
+
+		case 'Help and Feedback': 	page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+																break;
+
+		case 'View':	page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+									break;
+	}
+
+	})
+
+	</script>
+
+<div id="app">
+	<!--***********************************slide*****************************************-->
+
+<!--**************************************tabs and header****************************************************-->
+
+<ons-navigator id="appNavigator" swipeable swipe-target-width="80px">
+  <ons-page>
+    <ons-splitter id="appSplitter">
+      <ons-splitter-side id="menu" page="menu.html" swipeable side="right" collapse="" width="48%"></ons-splitter-side>
+      <ons-splitter-content>
+        <ons-page id="tabbar-page">
+          <ons-toolbar>
+            <div class="center">Home</div>
+            <div class="right">
+              <ons-toolbar-button onclick="fn.toggleMenu()">
+                <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+              </ons-toolbar-button>
+            </div>
+          </ons-toolbar>
+          <ons-tabbar id="appTabs" position="auto">
+						<ons-tab label="Home" icon="ion-home" page="Home.html" active>
+						</ons-tab>
+						<ons-tab label="Search" icon="ion-ios-search-strong" page="Search.html">
+						</ons-tab>
+						<ons-tab label="Add" icon="fa-plus-square-o" page="Add.html">
+						</ons-tab>
+						<ons-tab label="Person" icon="ion-ios-person-outline" page="Person.html">
+          </ons-tabbar>
+        </ons-page>
+      </ons-splitter-content>
+    </ons-splitter>
+  </ons-page>
+</ons-navigator>
+
+<!--**************************************Sidemenu****************************************************-->
+<template id="menu.html">
+  <ons-page>
+		<div class="item item-avatar">
+	    <h2>Name: Chen Chen (Jeff)</h2>
+	    <p>ID:216328815</p>
+	  </div>
+  </ons-page>
+</template>
+
+<!--**************************************inside css markup header and taps****************************************************-->
+<style>
+ons-tabbar ons-tab{
+	 background-color: #08A0FF;
+	}:checked+.tabbar__button .tabbar__label{
+		color:rgba(24,103,194,.8);
+	}
+
+ons-toolbar .center{
+	background-color: #08A0FF;
+	color: #fff;
+}
+
+	.tabbar__button,.tabbar__label{
+      color: #fff;
+  }
+
+	.col{
+		text-align: center;
+	}
+
+	table{
+		width: 100%;
+		margin:0 auto;
+	}
+
+ td{
+	 	padding: auto;
+		width: 50%;
+	}
+
+	#replybar{
+		display: none;
+	}
+
+</style>
+
+<!--**************************************Home page****************************************************-->
+<template id="Home.html">
+   <!-- <ons-page> -->
+
+			<!--<ons-pull-hook>
+      	<ons-icon size="30px" spin icon="md-spinner"></ons-icon>
+    	</ons-pull-hook> -->
+		<!-- <div id="search" class="center"><ons-search-input class="search_box"  placeholder="Search"  ></ons-search-input></div> -->
+
+	<!-- ******************************************Cards******************************************* -->
+<!-- <div class="list card" onclick="fn.pushPage({'id': 'View.html', 'title': 'View'})">
+
+  <div class="item item-avatar">
+    <img src="">
+    <h2>Marty McFly</h2>
+    <p>June 15, 2017</p>
+  </div>
+
+  <div class="item item-body">
+    <img src="">
+    <p id="cardContent">
+       abcdefg!<br>
+      qwertyuiop!<br>
+      asdfghjkl!<br>
+      zxcvbnm!
+    </p>
+    <p>
+      <a href="#" class="subdued">32 like</a>
+      <a href="#" class="subdued">43 comments</a>
+    </p>
+  </div>
+</div>
+
+
+	<div style="text-align: center; margin-bottom: 5%">
+      <ons-icon size="30px" spin icon="md-spinner"></ons-icon>
+  </div>-->
+
+<!-- </ons-page> -->
+</template>
+
+<!--**************************************Search page****************************************************-->
+<template id="Search.html">
+  <ons-page>
+    <!-- <ons-toolbar>
+      <div class="center">Search</div>
+    </ons-toolbar> -->
+
+		  <div class="center"><ons-search-input class="search_box" placeholder="Search" style="width:80%; padding:4%; margin:0 8%"></ons-search-input></div>
+
+			<ons-button modifier="large">Sports</ons-button>
+			<p></p>
+			<ons-button modifier="large">Games</ons-button>
+			<p></p>
+			<ons-button modifier="large">Food</ons-button>
+			<p></p>
+
+  </ons-page>
+</template>
+
+<!--*************************************************View page****************************************************-->
+
+<template id="View.html">
+		<!-- <ons-page>
+	    <ons-toolbar>
+				<div class="left"><ons-back-button>Home</ons-back-button></div>
+	      <div class="center"></div>
+	    </ons-toolbar>
+			<p id="card_content">
+				<div class="list card">
+
+				<div class="item item-avatar">
+					<img src="">
+					<h2 id="nameV">Jarry Care</h2>
+					<p id="timeV">May 21, 2017</p>
+				</div>
+
+				<div class="item item-body">
+					<img src="">
+					<p id="article">
+
+					</p>
+					<p>
+						<a href="#" class="subdued">11 like</a>
+						<a href="#" onclick="reply()" class="subdued">reply</a>
+					</p>
+				</div>
+
+				<div id="replybar" class="item item-body">
+					<textarea id="txtComments" placeholder="Comments Please!" style="width:100%; height:10%;"></textarea>
+					<button class="button button-block button-positive" onclick="recordComments()">submit</button>
+				</div>
+
+				<div id="commentsArea" class="item item-body">
+
+				</div>
+			</div>
+
+			</p>
+	</ons-page> -->
+</template>
+
+<!--**************************************Add and Post page****************************************************-->
+
+<template id="Add.html">
+  <ons-page>
+    <!-- <ons-toolbar>
+      <div class="center">Add</div>
+    </ons-toolbar> -->
+
+
+		<div class="content has-header">
+      <div class="list list-inset">
+
+				<label class="item item-input">
+					<input type="text" placeholder="Title:" id="title">
+				</label>
+
+				<label class="item item-input">
+					<input type="text" placeholder="Category:" id="category">
+				</label>
+
+
+        <label class="item item-input">
+          <textarea id="txtPost" placeholder="Welcome! Share your interesting things." style="width:80%; height:60%;"></textarea>
+        </label>
+      </div>
+
+      <div class="padding">
+        <button class="button button-block button-positive" onclick="recordPost()" page="Home.html">Post</button>
+      </div>
+    </div>
+
+    <p style="text-align: center;">
+      This is the second page.
+    </p>
+  </ons-page>
+</template>
+
+<!--**************************************Person page****************************************************-->
+<template id="Person.html">
+  <ons-page id="Person">
+    <!-- <ons-toolbar>
+      <div class="center">Person</div>
+    </ons-toolbar> -->
+
+		<div id ="show" class="content has-header">
+      <div class="list list-inset">
+        <label class="item item-input">
+          <input type="text" placeholder="Username" id="usernameL">
+        </label>
+        <label class="item item-input">
+          <input type="password" placeholder="Password" id="passwordL">
+        </label>
+      </div>
+      <div class="padding">
+        <button id="login" class="button button-block button-positive" >Login</button>
+      </div>
+			<div class="col">
+				<table>
+					<tr>
+						<td align="right" style="border-right:2px solid #0c60ee;">
+							<ons-button id="push-button-sign">Sign up</ons-button>
+						</td>
+						<td>
+							<ons-button id="push-button-forgot">Forgot Password?</ons-button>
+						</td>
+					</tr>
+				</table>
+			</div>
+    </div>
+
+		<!--**************************************Setting list****************************************************-->
+
+		<div style="padding-top:3%;">
+		<ons-list-header>settings</ons-list-header>
+		<ons-list-item onclick="transferManage()"><!--fn.pushPage({'id': 'MangeA.html', 'title': 'Mange Accouts'})">-->
+      <div class="left">
+        <ons-icon icon="ion-ios-gear" class="list-item__icon"></ons-icon>
+      </div>
+      <div class="center">
+        Manage accounts
+      </div>
+    </ons-list-item>
+
+		 <ons-list-item onclick="transferNotification()"> <!--fn.pushPage({'id': 'Notification.html', 'title': 'Notification'})">-->
+      <div class="left">
+        <ons-icon icon="ion-android-notifications" class="list-item__icon"></ons-icon>
+      </div>
+      <div class="center">
+        Notification
+      </div>
+    </ons-list-item>
+
+				<ons-list-item onclick="transferHelp()"><!--fn.pushPage({'id': 'Help.html', 'title': 'Help&Feedback'})">-->
+      <div class="left">
+        <ons-icon icon="ion-ios-help" class="list-item__icon"></ons-icon>
+      </div>
+      <div class="center">
+        Help&Feedback
+      </div>
+    </ons-list-item>
+	</div>
+
+  </ons-page>
+</template>
+
+<!--**************************************Rigester page****************************************************-->
+<template id="Register.html">
+  <ons-page id="Register">
+    <ons-toolbar>
+			<div class="left"><ons-back-button>Login</ons-back-button></div>
+      <div class="center"></div>
+    </ons-toolbar>
+
+		<div class="content has-header">
+      <div class="list">
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">Username</span>
+          <input type="text" placeholder="Pick a username" id="username" onkeyup="checkUsername_R()">
+					<span id="usernameE" style="color:red;"></span>
+        </label>
+
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">Email</span>
+          <input type="text" placeholder="Your email address" id="email" onkeyup="checkEmail_R()">
+					<span id="emailE" style="color:red"></span>
+        </label>
+
+				<label class="item item-input item-stacked-label">
+          <span class="input-label">Password</span>
+          <input type="password" placeholder="Creare a password" id="password" onkeyup="checkPassword_R()">
+					<span id="passwordE" style="color:red"></span>
+        </label>
+      </div>
+
+			<p style="padding-left:3%; font-size:12px; color:#6a737d;">Use at least one letter, one numeral, and seven characters.</p>
+
+      <div class="padding">
+        <button id="signBack" class="button button-block button-positive" onclick="onRegisterPressed()">Sign up</button>
+      </div>
+    </div>
+
+  </ons-page>
+</template>
+
+<!--**************************************Mange Account****************************************************-->
+<template id="MangeA.html">
+		<!-- <ons-page id="MangeA">
+	    <ons-toolbar>
+				<div class="left"><ons-back-button>Settings</ons-back-button></div>
+	      <div class="center"></div>
+	    </ons-toolbar>
+
+			<ons-list>
+				<ons-list-header>Personal Information</ons-list-header>
+				<ons-list-item>Username:<span id = "userName"></span></ons-list-item>
+				<ons-list-item>Email:<span id = "userEmail"></span></ons-list-item>
+			</ons-list>
+
+	</ons-page> -->
+</template>
+
+<!--**************************************Notification****************************************************-->
+<template id="Notification.html">
+		<ons-page id="Notification">
+	    <ons-toolbar>
+				<div class="left"><ons-back-button>Settings</ons-back-button></div>
+	      <div class="center"></div>
+	    </ons-toolbar>
+		Notification
+	</ons-page>
+</template>
+
+<!--**************************************Help and Feedback****************************************************-->
+<template id="Help.html">
+		<ons-page id="Help and Feedback">
+	    <ons-toolbar>
+				<div class="left"><ons-back-button>Settings</ons-back-button></div>
+	      <div class="center"></div>
+	    </ons-toolbar>
+		Help and Feedback
+	</ons-page>
+</template>
+
+</div>
+
+</body>
+</html>
